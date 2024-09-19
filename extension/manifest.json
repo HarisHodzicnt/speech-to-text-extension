@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Scribebrain speech to Text",
+  "version": "1.0",
+  "description": "Convert speech to text and insert it into the focused input field.",
+  "permissions": ["activeTab", "scripting"],
+  "action": {
+    "default_title": "Toggle Speech to Text"
+  },
+  "commands": {
+    "toggle_speech_to_text": {
+      "suggested_key": {
+        "default": "Alt+U"
+      },
+      "description": "Toggle Scribebrain Speech to Text"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "type": "module"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}
