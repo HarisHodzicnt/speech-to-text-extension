@@ -1,6 +1,10 @@
+// const API_KEY = "Jk7MhP2QUzhNgwpGYLgwIiYj3d1AHccl";
 const API_KEY = "4xovNgvcMrT64aQncTlySO1rnoG8kFE6";
+
 const LANGUAGE = "en";
 const CONNECTION_URL = `wss://eu2.rt.speechmatics.com/v2`; // WebSocket URL without JWT
+
+// const CONNECTION_URL = `wss://wus.rt.speechmatics.com/v2/en`; // WebSocket URL without JWT
 
 let isTranscribing = false;
 let audioContext;
@@ -29,29 +33,62 @@ document.body.appendChild(button);
 
 let activeElement;
 button.addEventListener("mousedown", (event) => {
-  activeElement = document.activeElement;
+  activeElement = getActiveElement();
 });
 button.addEventListener("click", (e) => {
-  if (activeElement) activeElement.focus();
-  toggleRecognition();
+  if (activeElement) {
+    activeElement.focus();
+    toggleRecognition();
+  }
 });
 
-function insertTextAtCursor(text) {
+const getAthenaDocument = () => {
+  const iframe1 = document.getElementById("GlobalWrapper");
+  const iframeDocument1 =
+    iframe1.contentDocument || iframe1.contentWindow.document;
+
+  const iframe2 = iframeDocument1.getElementById("frameContent");
+  const iframeDocument2 =
+    iframe2.contentDocument || iframe2.contentWindow.document;
+
+  const iframe3 = iframeDocument2.getElementById("frMain");
+  const iframeDocument3 =
+    iframe3.contentDocument || iframe3.contentWindow.document;
+  return iframeDocument3;
+};
+
+const getActiveDocument = () => {
   let el = document.activeElement;
 
-  if (el.tagName.toLowerCase() === "iframe") {
+  if (window.location.href.includes("athena")) {
+    return getAthenaDocument();
+  } else if (el.tagName.toLowerCase() === "iframe") {
+    const iframeDocument = el.contentDocument || el.contentWindow.document;
+    return iframeDocument;
+  }
+  return document;
+};
+
+const getActiveElement = () => {
+  let el = document.activeElement;
+  if (window.location.href.includes("athena")) {
+    const athenaDocument = getAthenaDocument();
+    el = athenaDocument.activeElement;
+  } else if (el.tagName.toLowerCase() === "iframe") {
     const iframeDocument = el.contentDocument || el.contentWindow.document;
     el = iframeDocument.activeElement;
   }
+  return el;
+};
 
+function insertTextAtCursor(text) {
+  let el = getActiveElement();
   const tagName = el?.tagName?.toLowerCase();
-
   if (tagName && isEditableField(tagName)) {
     insertTextIntoField(el, text);
   } else if (tagName && isContentEditableDiv(tagName, el)) {
     insertTextIntoContentEditable(el, text);
   }
-
   dispatchInputAndChangeEvents(el);
 }
 
@@ -75,18 +112,77 @@ function isContentEditableDiv(tagName, el) {
   return tagName === "div" && el.getAttribute("contenteditable") === "true";
 }
 
-// Insert text into contenteditable div
-function insertTextIntoContentEditable(el, text) {
-  const selection = window.getSelection();
-  const range = selection.getRangeAt(0);
+const modifyFirstElement = (existingNode) => {
+  const zeroWidthChildren = existingNode.querySelectorAll(
+    '[data-slate-zero-width="n"]'
+  );
+  zeroWidthChildren?.forEach((child) => {
+    child.removeAttribute("data-slate-zero-width");
+    child.removeAttribute("data-slate-length");
+    child.setAttribute("data-slate-string", "true");
+    child.textContent = "";
+  });
+};
 
-  range.deleteContents();
-  const textNode = document.createTextNode(text);
-  range.insertNode(textNode);
-  range.setStartAfter(textNode);
-  range.setEndAfter(textNode);
-  selection.removeAllRanges();
-  selection.addRange(range);
+function debounce(func, delay) {
+  let timeoutId; // To hold the timeout ID
+  let previousTexts = []; // To store all previous texts
+
+  return function (text) {
+    const context = this; // Preserve the context of the original function
+
+    // Clear the previous timeout
+    clearTimeout(timeoutId);
+
+    // Push the current text to the previousTexts array
+    previousTexts.push(text);
+
+    // Set a new timeout
+    timeoutId = setTimeout(() => {
+      // Call the original function with all accumulated texts when debounced
+      func.call(context, previousTexts);
+
+      // Clear the previous texts array after sending
+      previousTexts = [];
+    }, delay);
+  };
+}
+
+function insertTextIntoContentEditable(el, text) {
+  const activeDocument = getActiveDocument();
+  const selection = activeDocument.getSelection();
+
+  if (selection.rangeCount > 0) {
+    if (el.getAttribute("data-slate-editor")) {
+      modifyFirstElement(el);
+    }
+
+    const range = selection.getRangeAt(0);
+
+    if (el.getAttribute("data-slate-editor")) {
+      const container = range.startContainer;
+      const originalText = container.textContent;
+      const beforeCursor = originalText.slice(0, range.startOffset);
+      const afterCursor = originalText.slice(range.startOffset);
+      const newText = beforeCursor + text + afterCursor;
+      if (
+        newText &&
+        container.textContent[container.textContent.length - 1] !== newText
+      ) {
+        container.textContent = newText;
+      }
+    } else {
+      range.deleteContents();
+      const textNode = document.createTextNode(text);
+      range.insertNode(textNode);
+      range.setStartAfter(textNode);
+      range.setEndAfter(textNode);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+  } else {
+    console.log("No valid text selection found");
+  }
 }
 
 // Dispatch input and change events
@@ -130,14 +226,12 @@ function toggleRecognition() {
     stopTranscription();
     button.style.background = "#000";
   } else {
+    button.style.opacity = "0.5";
     startTranscription();
-    button.style.background = "#f00";
   }
 }
 
 async function startTranscription() {
-  isTranscribing = true;
-
   try {
     await initializeAudioContext();
     await setupWebSocket();
@@ -159,6 +253,8 @@ async function initializeAudioContext() {
   processor.connect(audioContext.destination);
 }
 
+const debouncedSendTexts = debounce(insertTextAtCursor, 500);
+
 async function setupWebSocket() {
   const token = await getJwt();
   socket = new WebSocket(`${CONNECTION_URL}?jwt=${token}`);
@@ -172,8 +268,11 @@ async function setupWebSocket() {
   socket.onmessage = (event) => {
     const message = JSON.parse(event.data);
     if (message.message === "AddTranscript") {
-      const transcript = message.metadata.transcript;
-      insertTextAtCursor(transcript);
+      let transcript = message.metadata.transcript;
+      if (transcript === " ." || transcript === ". " || transcript === " . ") {
+        transcript = transcript.trim();
+      }
+      transcript?.trim() && debouncedSendTexts(transcript);
     }
   };
 
@@ -192,7 +291,8 @@ function sendConfigMessage() {
     transcription_config: {
       language: LANGUAGE,
       enable_partials: true,
-      max_delay: 3,
+      max_delay: 10.0,
+      max_delay_mode: "fixed",
     },
     audio_format: {
       type: "raw",
@@ -203,9 +303,12 @@ function sendConfigMessage() {
   socket.send(JSON.stringify(configMessage));
 }
 
-function setupAudioProcessing() {
+const setupAudioProcessing = () => {
   processor.onaudioprocess = (e) => {
     const inputData = e.inputBuffer.getChannelData(0);
+    isTranscribing = true;
+    button.style.background = "#f00";
+    button.style.opacity = "1";
     if (socket && socket.readyState === WebSocket.OPEN) {
       const buffer = new ArrayBuffer(inputData.length * 4);
       const view = new DataView(buffer);
@@ -215,7 +318,7 @@ function setupAudioProcessing() {
       socket.send(buffer);
     }
   };
-}
+};
 
 function stopTranscription() {
   isTranscribing = false;
