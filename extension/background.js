@@ -6,21 +6,21 @@ async function toggleSpeechToText() {
   chrome.tabs.sendMessage(activeTab.id, { command: "toggleRecognition" });
   chrome.scripting.executeScript({
     target: { tabId: activeTab.id },
-    function: function () {
-      const button = document.getElementById("speechToTextButton");
-      if (button) {
-        button.style.display = "block";
-      }
-    },
   });
 }
-
-chrome.action.onClicked.addListener(() => {
-  toggleSpeechToText();
-});
 
 chrome.commands.onCommand.addListener((command) => {
   if (command === "toggle_speech_to_text") {
     toggleSpeechToText();
+  }
+});
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === "LogoutUser") {
+    chrome.storage.local.remove("token", () => {
+      sendResponse({ status: "Ok" });
+    });
+
+    return true;
   }
 });

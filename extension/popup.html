@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign In</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1 id="form-title-sign-in" class="pt-1-5">ScribeBrain's Speech-To-Text</h1>
+      <h2 id="form-header">Sign In</h2>
+      <form id="login-form" action="">
+        <div class="form-group">
+          <label for="Username">User Name</label>
+          <input type="text" id="username" name="username" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required />
+        </div>
+        <div class="form-group">
+          <input type="submit" value="Sign In" />
+        </div>
+        <div id="error-message">
+          </div>
+      </form>
+      <div id="main-content" class="hidden text-center pt-1-5">
+        <h1>ScribeBrain's Speech-To-Text</h1>
+        <button id="logout-button" class="logout-button">Logout</button>
+
+        <div class="mt-1 instructions">
+          <h4 class="mt-1"><strong>How to Start?</strong></h4>
+          <h5>To activate the Speech-to-Text, use following commands:</h5>
+          <ul>
+              <li><strong>Windows:</strong> <code>ALT + U</code></li>
+              <li><strong>Mac:</strong> <code>OPTION + U</code></li>
+          </ul>
+          <div style="display: flex; align-items: center; justify-content: center; padding-top: 5px;">
+              <h5>Key commands will activate the button seen like:</h5>
+              <button class="speech-button" id="speechToTextButton">
+                  🎙️
+              </button>
+          </div>
+      
+          <h4><strong>Color Schema</strong></h4>
+          <ul>
+              <li style="display:flex; align-items: center;"><div style="border-radius: 50%; border: 1px solid transparent; width:10px; height: 10px; margin-right: 5px; background-color:#E63946;"></div> Microphone is not active.</li>
+              <li style="display:flex; align-items: center;"><div style="border-radius: 50%; border: 1px solid transparent; width:10px; height: 10px; margin-right: 5px; background-color:#28A745;"></div> Microphone is active.</li>
+              <li style="display:flex; align-items: center;"><div style="border-radius: 50%; border: 1px solid transparent; width:10px; height: 10px; margin-right: 5px; background-color:#E63946; opacity: 0.5;"></div> We are processing.</li>
+          </ul>
+      </div>
+      
+      </div>
+        <div class="footer">
+            <img src="https://lite.scribebrain.com/assets/logo-footer-4e9f5072.png" style="min-width: 80px; width: 90px; padding: 7px 45px; background: white;" alt="Logo" />
+            <p class="gray-text font-size-08">© 2024 ScribeBrain LLC</p>
+            <a href="mailto:Solutions@scribebrain.ai?subject=Hi!%20I%27m%20a%20Practice%20with%20a%20question" target="_top" style="font-size: 0.8rem; color: rgb(255 255 255); text-decoration: none;">
+                <span class="label">Solutions@ScribeBrain.AI</span>
+            </a>
+            <p class="bottom-text">Made with ❤ by ScribeBrain</p>
+      </div>
+    </div>
+
+    <!-- Reference the external JS file -->
+    <script src="popup.js"></script>
+  </body>
+</html>

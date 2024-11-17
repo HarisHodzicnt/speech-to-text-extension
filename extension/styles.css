@@ -1,0 +1,155 @@
+body {
+    background-color: white;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .container {
+    background-color: rgb(93, 34, 143);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    min-width: 400px;
+  }
+  #login-form {
+    overflow: hidden;
+  }
+  .container h2, .container h1 {
+    color: white;
+    text-align: center;
+  }
+  .form-group {
+    margin-bottom: 15px;
+  }
+  .form-group label {
+    display: block;
+    color: white;
+    margin-bottom: 5px;
+  }
+  .form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid rgb(121, 195, 4);
+    border-radius: 4px;
+    background-color: white;
+  }
+  .form-group input[type="submit"] {
+    background-color: rgb(121, 195, 4);
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  .form-group input[type="submit"]:hover {
+    background-color: black;
+  }
+  ul, ol {
+    width: 50%;
+    margin: 0 auto; 
+    color: white;
+    font-size: 0.9rem;
+    text-align: left;
+  }
+
+  .error {
+    color: red;
+    margin-bottom: 10px;
+  }
+  .instructions {
+    line-height: 1.2rem;
+  }
+
+  .instructions h4, .instructions h5{
+    color: white;
+    margin: 5px 0px;
+    font-weight: 400;
+  }
+  .instructions h4 {
+    font-size: 1.1rem;
+  }
+  .instructions h5 {
+    font-size: 0.9rem;
+  }
+  .footer {
+    text-align: center;
+    width: 100%;
+    line-height: 20px;
+    margin-top: 40px;
+  }
+  .gray-text {
+    margin: 0px;
+    font-weight: 400;
+    color: rgb(200, 198, 198);
+  }
+  .font-size-08 {
+    font-size: 0.8rem;
+  }
+  .bottom-text {
+    margin: 0px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: white;
+    line-height: 8px;
+    margin-top: 5px;
+  }
+  .hidden {
+    display: none;
+  }
+
+
+  .text-center {
+    text-align: center;
+  }
+  .logout-button {
+    background: transparent;
+    padding: 5px 12px;
+    font-size: 0.9rem;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    border-bottom: 1px solid white;
+    position: absolute;
+    right: 4px;
+    top: 10px;
+  }
+  .logout-button:hover {
+    background-color: white;
+    color: black;
+  }
+
+  .speech-button {
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+    cursor: pointer;
+    background: #28A745;
+    color: #fff;
+    position: relative;
+    left: 10px;
+}
+
+
+.speech-button.recording {
+    background: #f00; /* Red when recording */
+    color: #fff; /* Keep text color white */
+}
+
+#error-message {
+  color: red;
+  padding: 10px 10px;
+  font-weight: bold;
+}
+
+.mt-1 {
+  margin-top:1rem;
+}
+
+.pt-1-5 {
+  padding-top: 1.5rem;
+}
